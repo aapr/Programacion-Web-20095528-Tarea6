@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u"
+        crossorigin="anonymous">
+
+    <style>
+        .author {
+            font-weight: bold;
+            padding-left: 8px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Pokemon</h1>
+    <div id="content"></div>
+    <h1>Who's that pokemon!</h1>
+    <form id="create">
+
+        <div class="form-group">
+            <label for="name">Name</label>
+            <input type="text" class="form-control" id="name" placeholder="pikachu">
+        </div>
+
+        <button id="submit" type="submit">Submit</button>
+    </form>
+    <script>
+        var xmlhttp = new XMLHttpRequest();
+        var url = "http://pokeapi.co/api/v2/pokemon";
+
+        var post = function (data) {
+            var xmlhttp = new XMLHttpRequest();   // new HttpRequest instance 
+            xmlhttp.open("POST", url, true);
+            xmlhttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8");            
+            xmlhttp.send(JSON.stringify(data));
+
+            xmlhttp.onreadystatechange = function () {
+                if (this.readyState == 4 && this.status == 200) {
+                    // Clear list
+                    var elem = document.getElementById('quotes');
+                    //elem.remove();
+
+                    // Refresh
+                    get();
+                }
+            };
+        }
+        function error404(name){
+              var container = document.getElementById('content');
+              var err = document.createElement('h1');
+              var t_err = document.createTextNode(name+' not found');
+              err.appendChild(t_err);
+              container.appendChild(err);
+            }
+        var get = function (name, re) {
+            xmlhttp.onreadystatechange = function () {
+                if (this.readyState == 4 && this.status == 200) {
+                    //console.log(JSON.parse(this.responseText));
+                    myFunction(JSON.parse(this.responseText));
+                }
+                else if (this.readyState == 4 && this.status == 404){
+                  error404(name);
+                  
+                }
+            };
+
+            xmlhttp.open("GET", re, true);
+            xmlhttp.send();
+
+            function myFunction(arr) {
+                // Get the container
+                var container = document.getElementById('content');
+
+                // Create list element
+                var list = document.createElement('ul');
+                //list.id = 'quotes';
+                list.classList.add('list-group');
+
+                list.innerHTML= arr.name;
+
+                // Iteratee over results
+                for (var idx = 0; idx < arr.abilities.length; idx++) {
+                    // Create list element
+                    var listElement = document.createElement('li');
+                    var author = document.createElement('span');
+                    author.classList.add('author');
+                    listElement.classList.add('list-group-item');
+
+                    // Modify its content
+                    author.innerHTML = '— ' + arr.abilities[idx].ability.name;
+
+                    listElement.appendChild(author);
+
+                    // Add list element to list
+                    list.appendChild(listElement);
+                }
+
+                // Add list to container
+                container.appendChild(list);
+
+
+
+            }
+        }
+
+        var form = document.getElementById('create');
+        form.onsubmit = function(evt) {
+            evt.preventDefault();
+
+            var name = document.getElementById('name');
+            //var quote = document.getElementById('quote');
+
+            var obj = new Object;
+            obj.name = name.value;
+            //obj.quote = quote.value;
+
+            console.log(name.value);
+     
+            // Request data
+            var re = url+"/"+name.value;
+            get(name.value, re);
+
+            // Send data
+            post(obj);
+
+            // Reset form
+            name.value = '';
+            //quote.value = '';
+        };
+
+        // Get everything
+        //get();
+    </script>
+</body>
+
+</html>
